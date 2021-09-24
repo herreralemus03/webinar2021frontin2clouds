@@ -24,10 +24,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="outbound">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" href="webinar2021frontin2clouds/icons/Icon-192.png">
 
   <title>outbound</title>
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="webinar2021frontin2clouds/manifest.json">
 </head>
 <body>
   <!-- This script installs service_worker.js to provide PWA functionality to
@@ -42,7 +42,7 @@
       }
       scriptLoaded = true;
       var scriptTag = document.createElement('script');
-      scriptTag.src = 'main.dart.js';
+      scriptTag.src = 'webinar2021frontin2clouds/main.dart.js';
       scriptTag.type = 'application/javascript';
       document.body.append(scriptTag);
     }
@@ -53,7 +53,7 @@
         // Wait for registration to finish before dropping the <script> tag.
         // Otherwise, the browser will load the script multiple times,
         // potentially different versions.
-        var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
+        var serviceWorkerUrl = 'webinar2021frontin2clouds/flutter_service_worker.js?v=' + serviceWorkerVersion;
         navigator.serviceWorker.register(serviceWorkerUrl)
           .then((reg) => {
             function waitForActivation(serviceWorker) {
