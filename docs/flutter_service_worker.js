@@ -3,32 +3,32 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "assets/AssetManifest.json": "2efbb41d7877d10aac9d091f58ccd7b9",
-"assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
-"assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
-"assets/NOTICES": "3879bdf2a9172bd1dc076d578a76ebf3",
-"assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "6d342eb68f170c97609e9da345464e5e",
-"favicon.png": "5dcef449791fa27946b3d35ad8803796",
-"icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
-"icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
-"icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
-"index.html": "a505aeb1451afc85f57a28f49bc7f964",
-"/": "a505aeb1451afc85f57a28f49bc7f964",
-"main.dart.js": "b0b5ca32928325b2dcd132d2639e931f",
-"manifest.json": "b73e0bf538355d996c922948bdef1bf3",
-"version.json": "dd73b021e13b8d13e63023a7144bd257"
+  "webinar2021frontin2clouds/assets/AssetManifest.json": "2efbb41d7877d10aac9d091f58ccd7b9",
+"webinar2021frontin2clouds/assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
+"webinar2021frontin2clouds/assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
+"webinar2021frontin2clouds/assets/NOTICES": "3879bdf2a9172bd1dc076d578a76ebf3",
+"webinar2021frontin2clouds/assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "6d342eb68f170c97609e9da345464e5e",
+"webinar2021frontin2clouds/favicon.png": "5dcef449791fa27946b3d35ad8803796",
+"webinar2021frontin2clouds/icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
+"webinar2021frontin2clouds/icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
+"webinar2021frontin2clouds/icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
+"webinar2021frontin2clouds/icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
+"webinar2021frontin2clouds/index.html": "a505aeb1451afc85f57a28f49bc7f964",
+"webinar2021frontin2clouds/": "a505aeb1451afc85f57a28f49bc7f964",
+"webinar2021frontin2clouds/main.dart.js": "b0b5ca32928325b2dcd132d2639e931f",
+"webinar2021frontin2clouds/manifest.json": "b73e0bf538355d996c922948bdef1bf3",
+"webinar2021frontin2clouds/version.json": "dd73b021e13b8d13e63023a7144bd257"
 };
 
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = [
-  "/",
-"main.dart.js",
-"index.html",
-"assets/NOTICES",
-"assets/AssetManifest.json",
-"assets/FontManifest.json"];
+  "webinar2021frontin2clouds/",
+"webinar2021frontin2clouds/main.dart.js",
+"webinar2021frontin2clouds/index.html",
+"webinar2021frontin2clouds/assets/NOTICES",
+"webinar2021frontin2clouds/assets/AssetManifest.json",
+"webinar2021frontin2clouds/assets/FontManifest.json"];
 // During install, the TEMP cache is populated with the application shell files.
 self.addEventListener("install", (event) => {
   self.skipWaiting();
