@@ -31,6 +31,7 @@ const CORE = [
 "webinar2021frontin2clouds/assets/FontManifest.json"];
 // During install, the TEMP cache is populated with the application shell files.
 self.addEventListener("install", (event) => {
+  console.log("1")
   self.skipWaiting();
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
