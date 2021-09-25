@@ -134,37 +134,7 @@ class _HomePageState extends State<HomePage> {
       onTap: () {
         showModalBottomSheet(
           context: context,
-          builder: (context) {
-            return FutureBuilder<Map<String, dynamic>>(
-              future: dashboardProvider.getList(status: label),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return buildError(snapshot.error);
-                } else if (snapshot.hasData) {
-                  if (snapshot.data?.isEmpty ?? true) {
-                    return buildEmptyContent();
-                  } else {
-                    return ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 50,
-                        vertical: 35,
-                      ),
-                      itemCount: snapshot.data?.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          leading: const Icon(Icons.call),
-                          title:
-                              Text((snapshot.data?.keys ?? []).toList()[index]),
-                        );
-                      },
-                    );
-                  }
-                }
-                if (snapshot.hasData) {}
-                return buildLoading();
-              },
-            );
-          },
+          builder: (context) => buildModalContent(label),
         );
       },
     );
@@ -183,6 +153,7 @@ class _HomePageState extends State<HomePage> {
           if (snapshot.data?.isEmpty ?? true) {
             return buildEmptyContent();
           } else {
+            final people = (snapshot.data?.values ?? []).toList();
             return ListView.builder(
               padding: const EdgeInsets.symmetric(
                 horizontal: 50,
@@ -190,9 +161,43 @@ class _HomePageState extends State<HomePage> {
               ),
               itemCount: snapshot.data?.length,
               itemBuilder: (context, index) {
+                final person = people[index];
                 return ListTile(
                   leading: const Icon(Icons.call),
-                  title: Text((snapshot.data?.keys ?? []).toList()[index]),
+                  title: Text("${person['nombre']} ${person['apellido']}"),
+                  subtitle: Text("${person['telefono']}"),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title:
+                              Text("${person["nombre"]} ${person["apellido"]}"),
+                          content: Container(
+                            child: Text("¿Llamar a ${person['telefono']}?"),
+                          ),
+                          actions: [
+                            TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: Text("CANCELAR")),
+                            TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: Text("LLAMAR")),
+                          ],
+                        );
+                      },
+                    ).then((value) {
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              "LLamando a ${person['nombre']} ${person['apellido']}")));
+                      if (value) {
+                        //dashboardProvider.callSingle(phone: person['telefono']);
+                      }
+                    });
+                  },
                 );
               },
             );

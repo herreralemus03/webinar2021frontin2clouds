@@ -39,14 +39,10 @@ class DashboardProvider {
     return decodedData;
   }
 
-  Future<dynamic> doCalls({
-    int amount = 5,
+  Future<void> doCalls({
+    int amount = 20,
   }) async {
-    var calls = [];
-    for (int i = 5; i <= amount; i++) {
-      calls[i] = await callNext();
-    }
-    return calls;
+    await callNext();
   }
 
   Future<Map<String, dynamic>> callNext({
@@ -55,6 +51,22 @@ class DashboardProvider {
     await Future.delayed(duration);
     final response = await doGetCustom(
         "nhd59lyhhk.execute-api.us-east-1.amazonaws.com", "/dev");
+    final decodedData = json.decode(utf8.decode(response.bodyBytes));
+    return decodedData;
+  }
+
+  Future<Map<String, dynamic>> callSingle({required String phone}) async {
+    final response = await doGetCustom(
+        "nhd59lyhhk.execute-api.us-east-1.amazonaws.com", "/dev/call-single",
+        params: {"phone": phone});
+    final decodedData = json.decode(utf8.decode(response.bodyBytes));
+    return decodedData;
+  }
+
+  Future<Map<String, dynamic>> callGroup({required List<String> phones}) async {
+    final response = await doGetCustom(
+        "nhd59lyhhk.execute-api.us-east-1.amazonaws.com", "/dev/call-group",
+        params: {"phones": phones});
     final decodedData = json.decode(utf8.decode(response.bodyBytes));
     return decodedData;
   }
