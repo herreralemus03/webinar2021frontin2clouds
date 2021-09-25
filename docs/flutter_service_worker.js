@@ -110,7 +110,7 @@ self.addEventListener("fetch", (event) => {
     key = key.split('?v=')[0];
   }
   if (event.request.url == origin || event.request.url.startsWith(origin + '/#') || key == '') {
-    key = '/';
+    key = 'webinar2021frontin2clouds/';
   }
   // If the URL is not the RESOURCE list then return to signal that the
   // browser should take over.
