@@ -42,7 +42,7 @@ class DashboardProvider {
   Future<void> doCalls({
     int amount = 20,
   }) async {
-    await callNext();
+    await callGroup();
   }
 
   Future<Map<String, dynamic>> callNext({
@@ -63,10 +63,14 @@ class DashboardProvider {
     return decodedData;
   }
 
-  Future<Map<String, dynamic>> callGroup({required List<String> phones}) async {
+  Future<Map<String, dynamic>> callGroup() async {
     final response = await doGetCustom(
         "nhd59lyhhk.execute-api.us-east-1.amazonaws.com", "/dev/call-group",
-        params: {"phones": phones});
+        params: {
+          "members": 7,
+          "membersinterval": 1,
+          "groupsinterval": 60,
+        });
     final decodedData = json.decode(utf8.decode(response.bodyBytes));
     return decodedData;
   }
