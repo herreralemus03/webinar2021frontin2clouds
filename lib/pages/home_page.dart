@@ -140,22 +140,31 @@ class _HomePageState extends State<HomePage> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
-              if (loading) return;
-              loading = true;
-              if (stopped) {
-                dashboardProvider.updateFlowStatus(status: "PLAYING").then(
-                    (value) => dashboardProvider
-                        .callGroup()
-                        .then((value) => setState(() {
-                              loading = false;
-                            })));
-              } else {
-                dashboardProvider
-                    .updateFlowStatus(status: "STOPPED")
-                    .then((value) => setState(() {
-                          loading = false;
-                        }));
-              }
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content: Text("¿" +
+                        (stopped ? "Detener" : "Iniciar") +
+                        " flujo de llamadas?"),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text("CANCELAR")),
+                      TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text(stopped ? "DETENER" : "INICIAR")),
+                    ],
+                  );
+                },
+              ).then((value) {
+                if (value) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                          (stopped ? "Deteniendo" : "Iniciando") + " flujo")));
+                  startFlow(stopped);
+                }
+              });
             },
             child: Icon(stopped ? Icons.stop : Icons.play_arrow),
             backgroundColor: stopped ? Colors.redAccent : Colors.green,
@@ -166,6 +175,20 @@ class _HomePageState extends State<HomePage> {
       }
     } else {
       return buildLoading();
+    }
+  }
+
+  void startFlow(bool stopped) async {
+    if (loading) return;
+    loading = true;
+    if (stopped) {
+      await dashboardProvider.updateFlowStatus(status: "PLAYING");
+      await dashboardProvider.callGroup();
+      setState(() => loading = false);
+    } else {
+      await dashboardProvider.updateFlowStatus(status: "STOPPED");
+      await dashboardProvider.callGroup();
+      setState(() => loading = false);
     }
   }
 
