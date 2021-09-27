@@ -1,20 +1,24 @@
 import 'dart:math';
 
+import 'package:outbound/models/status.dart';
+
 import 'server_config.dart';
 import 'dart:convert';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as status;
 
 class DashboardProvider {
   void doCall() {}
 
-  Future<Map<String, int>> getData() async {
+  Future<Response> getData() async {
     final response = await doGet("/api/participantes/dashboard", params: {});
 
-    final decodedData = json.decode(utf8.decode(response.bodyBytes)) as Map;
-    final data =
-        decodedData.map((key, value) => MapEntry(key as String, value as int));
-    return data;
+    final decodedData = json.decode(utf8.decode(response.bodyBytes));
+    final status = decodedData["status"] as bool;
+    final data = (decodedData["data"] as Map)
+        .map((key, value) => MapEntry(key, Status(title: key, value: value)))
+        .values
+        .toList();
+    final result = Response(stopped: status, values: data);
+    return result;
   }
 
   Future<Map<String, dynamic>> getList(
@@ -56,22 +60,22 @@ class DashboardProvider {
   }
 
   Future<Map<String, dynamic>> callSingle({required String phone}) async {
-    final response = await doGetCustom(
-        "nhd59lyhhk.execute-api.us-east-1.amazonaws.com", "/dev/call-single",
-        params: {"phone": phone});
+    final response = await doGet("/api/participantes/call-single",
+        params: {"destination": phone.replaceAll("+", "")});
     final decodedData = json.decode(utf8.decode(response.bodyBytes));
+    print(decodedData);
     return decodedData;
   }
 
-  Future<Map<String, dynamic>> callGroup() async {
-    final response = await doGetCustom(
-        "nhd59lyhhk.execute-api.us-east-1.amazonaws.com", "/dev/call-group",
-        params: {
-          "members": 7,
-          "membersinterval": 1,
-          "groupsinterval": 60,
-        });
-    final decodedData = json.decode(utf8.decode(response.bodyBytes));
-    return decodedData;
+  Future<void> callGroup({
+    int members = 20,
+    int membersInterval = 1,
+    int groupsInterval = 60,
+  }) async {
+    await doGet("/api/participantes/call-group", params: {
+      "members": "$members",
+      "membersinterval": "$membersInterval",
+      "groupsinterval": "$groupsInterval",
+    });
   }
 }

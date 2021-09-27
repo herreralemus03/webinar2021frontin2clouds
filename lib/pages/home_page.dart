@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:outbound/models/status.dart';
 import 'package:outbound/providers/dashboard_provider.dart';
 import 'package:outbound/widgets/card_counter.dart';
 
@@ -10,72 +12,147 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  DashboardProvider dashboardProvider = DashboardProvider();
+  final DashboardProvider dashboardProvider = DashboardProvider();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 24),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => setState(() {}),
-            icon: const Icon(Icons.refresh),
-          )
-        ],
-      ),
-      body: Container(
-        child: FutureBuilder<Map<String, int>>(
-          future: dashboardProvider.getData(),
-          builder: (context, snapshot) => buildBody(snapshot),
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        onTap: buildTitle,
-        items: const [
-          BottomNavigationBarItem(
-            label: "Iniciar",
-            icon: Icon(
-              Icons.play_arrow,
-              color: Colors.green,
-            ),
-          ),
-          BottomNavigationBarItem(
-            label: "Parar",
-            icon: Icon(
-              Icons.stop,
-              color: Colors.redAccent,
-            ),
-          ),
-        ],
-      ),
-    );
+    return FutureBuilder<Response>(
+        future: dashboardProvider.getData(),
+        builder: (context, snapshot) => buildBody(snapshot));
   }
 
-  Widget buildBody(AsyncSnapshot<Map<String, int>> snapshot) {
+  Widget buildBody(AsyncSnapshot<Response> snapshot) {
     if (snapshot.connectionState == ConnectionState.waiting) {
       return buildLoading();
     } else if (snapshot.hasError) {
       return buildError(snapshot.error);
     } else if (snapshot.hasData) {
-      if (snapshot.data?.isNotEmpty ?? true) {
-        return Column(
-          children: [
-            Expanded(flex: 1, child: buildCounters(snapshot.data ?? {})),
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: Text(
-                  "TOTAL\n\n${snapshot.data?.values.reduce((a, b) => a + b)}",
-                  textAlign: TextAlign.center,
+      if (snapshot.data?.values.isNotEmpty ?? true) {
+        final stopped = (snapshot.data?.stopped ?? true);
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.science),
+              tooltip: "Testing",
+              onPressed: () {
+                final phoneInput = TextEditingController();
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Container(
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              hintText: "Ej: 50372198058",
+                              label: Text("Telefono"),
+                            ),
+                            controller: phoneInput,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text("CANCELAR"),
+                          ),
+                          TextButton.icon(
+                            icon: const Icon(Icons.call),
+                            onPressed: () => Navigator.pop(context, true),
+                            label: const Text("LLAMAR"),
+                          ),
+                        ],
+                      );
+                    }).then(
+                  (value) {
+                    if (value ?? false) {
+                      dashboardProvider.callSingle(phone: phoneInput.text).then(
+                            (value) =>
+                                ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Llamando a +${phoneInput.text}",
+                                ),
+                              ),
+                            ),
+                          );
+                    }
+                  },
+                );
+              },
+            ),
+            centerTitle: true,
+            elevation: 0,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black87,
+            title: Image.asset(
+              "assets/img/In2Cloud-logo.png",
+              scale: 12.0,
+            ),
+            actions: [
+              IconButton(
+                onPressed: () => setState(() {}),
+                icon: const Icon(Icons.refresh),
+              )
+            ],
+          ),
+          body: Column(
+            children: [
+              Expanded(flex: 4, child: buildCounters(snapshot.data)),
+              Expanded(
+                flex: 3,
+                child: Center(
+                  child: Text(
+                    "TOTAL\n\n${snapshot.data?.values.map((e) => e.value).reduce((a, b) => a + b)}",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
                 ),
               ),
-            )
-          ],
+              Expanded(
+                  flex: 1,
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Powered by",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Image.asset(
+                            "assets/img/aws-logo.png",
+                            scale: 25,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              if (stopped) {
+                dashboardProvider.updateFlowStatus(status: "PLAYING").then(
+                    (value) => dashboardProvider
+                        .callGroup()
+                        .then((value) => setState(() {})));
+              } else {
+                dashboardProvider
+                    .updateFlowStatus(status: "STOPPED")
+                    .then((value) => setState(() {}));
+              }
+            },
+            child: Icon(stopped ? Icons.stop : Icons.play_arrow),
+            backgroundColor: stopped ? Colors.redAccent : Colors.green,
+          ),
         );
       } else {
         return buildEmptyContent();
@@ -85,8 +162,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget buildCounters(Map<String, int> data) {
-    final crossAxisCount = data.length;
+  Widget buildCounters(Response? data) {
+    final crossAxisCount = data?.values.length ?? 0;
 
     return GridView(
       shrinkWrap: true,
@@ -95,14 +172,10 @@ class _HomePageState extends State<HomePage> {
         childAspectRatio: (MediaQuery.of(context).size.width / crossAxisCount) /
             (MediaQuery.of(context).size.height / 2),
       ),
-      children: data
+      children: (data?.values ?? [])
           .map(
-            (key, value) => MapEntry(
-              key,
-              buildCard(key, value),
-            ),
+            (element) => buildCard(element.title, element.value),
           )
-          .values
           .toList(),
     );
   }
@@ -112,8 +185,7 @@ class _HomePageState extends State<HomePage> {
   void buildTitle(index) {
     switch (index) {
       case 0:
-        dashboardProvider.updateFlowStatus(status: "PLAYING");
-        dashboardProvider.doCalls();
+        dashboardProvider.callGroup();
         title = "Ejecutandose";
         break;
       case 1:
@@ -180,21 +252,21 @@ class _HomePageState extends State<HomePage> {
                             TextButton(
                                 onPressed: () =>
                                     Navigator.of(context).pop(false),
-                                child: Text("CANCELAR")),
+                                child: const Text("CANCELAR")),
                             TextButton(
                                 onPressed: () =>
                                     Navigator.of(context).pop(true),
-                                child: Text("LLAMAR")),
+                                child: const Text("LLAMAR")),
                           ],
                         );
                       },
                     ).then((value) {
                       Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(
-                              "LLamando a ${person['nombre']} ${person['apellido']}")));
                       if (value) {
-                        //dashboardProvider.callSingle(phone: person['telefono']);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                                "LLamando a ${person['nombre']} ${person['apellido']}")));
+                        dashboardProvider.callSingle(phone: person['telefono']);
                       }
                     });
                   },
