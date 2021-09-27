@@ -30,7 +30,7 @@ jobs:
       #  run: git clone --branch development https://github.com/herreralemus03/webinar2021frontin2clouds.git
       - name: install flutter
         run: sudo snap install flutter --classic && flutter channel beta && flutter config --enable-web && flutter build web
-      - name: Run a one-line script
+      - name: build web
         run: flutter build web
       - name: Firebase deploy
         run: firebase deploy
