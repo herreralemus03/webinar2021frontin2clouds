@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final DashboardProvider dashboardProvider = DashboardProvider();
+  bool loading = false;
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Response>(
@@ -138,16 +139,22 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {
+            onPressed: () async {
+              if (loading) return;
+              loading = true;
               if (stopped) {
                 dashboardProvider.updateFlowStatus(status: "PLAYING").then(
                     (value) => dashboardProvider
                         .callGroup()
-                        .then((value) => setState(() {})));
+                        .then((value) => setState(() {
+                              loading = false;
+                            })));
               } else {
                 dashboardProvider
                     .updateFlowStatus(status: "STOPPED")
-                    .then((value) => setState(() {}));
+                    .then((value) => setState(() {
+                          loading = false;
+                        }));
               }
             },
             child: Icon(stopped ? Icons.stop : Icons.play_arrow),
