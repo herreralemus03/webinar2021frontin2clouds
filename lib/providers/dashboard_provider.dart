@@ -12,12 +12,13 @@ class DashboardProvider {
     final response = await doGet("/api/participantes/dashboard", params: {});
 
     final decodedData = json.decode(utf8.decode(response.bodyBytes));
-    final status = decodedData["status"] as bool;
+    final stopped = decodedData["stopped"] as bool;
     final data = (decodedData["data"] as Map)
         .map((key, value) => MapEntry(key, Status(title: key, value: value)))
         .values
         .toList();
-    final result = Response(stopped: status, values: data);
+    print("stopped: $stopped");
+    final result = Response(stopped: stopped, values: data);
     return result;
   }
 
@@ -72,7 +73,7 @@ class DashboardProvider {
     int membersInterval = 1,
     int groupsInterval = 60,
   }) async {
-    await doGet("/api/participantes/call-group", params: {
+    await doGet("/api/participantes/call-groups", params: {
       "members": "$members",
       "membersinterval": "$membersInterval",
       "groupsinterval": "$groupsInterval",

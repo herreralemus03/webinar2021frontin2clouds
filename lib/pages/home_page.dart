@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
       return buildError(snapshot.error);
     } else if (snapshot.hasData) {
       if (snapshot.data?.values.isNotEmpty ?? true) {
-        final stopped = (snapshot.data?.stopped ?? true);
+        final stopped = !(snapshot.data?.stopped ?? true);
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(
                           (stopped ? "Deteniendo" : "Iniciando") + " flujo")));
-                  startFlow(stopped);
+                  startFlow(!stopped);
                 }
               });
             },
