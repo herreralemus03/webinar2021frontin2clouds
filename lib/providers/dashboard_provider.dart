@@ -17,7 +17,6 @@ class DashboardProvider {
         .map((key, value) => MapEntry(key, Status(title: key, value: value)))
         .values
         .toList();
-    print("stopped: $stopped");
     final result = Response(stopped: stopped, values: data);
     return result;
   }
@@ -68,15 +67,19 @@ class DashboardProvider {
     return decodedData;
   }
 
-  Future<void> callGroup({
-    int members = 20,
-    int membersInterval = 1,
-    int groupsInterval = 60,
-  }) async {
+  Future<void> callGroup(
+      {int members = 1,
+      int membersInterval = 1,
+      int groupsInterval = 1,
+      String destinationPhoneNumber = "+50322597130",
+      String contactFlowId = "f0f45db7-dfa4-48e5-93bc-f3991cdf1d15",
+      String instanceId = "0234cea5-721b-4f50-9f95-fb93571368ad"}) async {
     await doGet("/api/participantes/call-groups", params: {
       "members": "$members",
       "membersinterval": "$membersInterval",
       "groupsinterval": "$groupsInterval",
+      "contactFlowId": contactFlowId,
+      "instanceId": instanceId,
     });
   }
 }

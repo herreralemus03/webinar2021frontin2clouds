@@ -140,13 +140,71 @@ class _HomePageState extends State<HomePage> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
+              final membersTextController = TextEditingController(text: "10");
+              final memberCallDelayTextController =
+                  TextEditingController(text: "60");
+              final groupCallDelayTextController =
+                  TextEditingController(text: "120");
               showDialog(
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    content: Text("¿" +
+                    title: Text("¿" +
                         (stopped ? "Detener" : "Iniciar") +
                         " flujo de llamadas?"),
+                    content: Column(
+                      children: [
+                        stopped
+                            ? const SizedBox()
+                            : Container(
+                                constraints:
+                                    const BoxConstraints(minWidth: 400),
+                                child: Form(
+                                  child: Column(
+                                    children: [
+                                      TextFormField(
+                                        controller: membersTextController,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        decoration: const InputDecoration(
+                                          prefixIcon: Icon(Icons.group),
+                                          suffix: Text("miembros"),
+                                          label: Text("Miembros por grupo"),
+                                        ),
+                                      ),
+                                      TextFormField(
+                                        controller:
+                                            memberCallDelayTextController,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        decoration: const InputDecoration(
+                                          prefixIcon: Icon(Icons.timelapse),
+                                          suffix: Text("segundos"),
+                                          label: Text(
+                                              "Intervalos de llamada por miembro (segundos)"),
+                                        ),
+                                      ),
+                                      TextFormField(
+                                        controller:
+                                            groupCallDelayTextController,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        decoration: const InputDecoration(
+                                          prefixIcon: Icon(Icons.timelapse),
+                                          suffix: Text("segundos"),
+                                          label: Text(
+                                              "Intervalos de llamadas por grupo (segundos)"),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                      ],
+                    ),
                     actions: [
                       TextButton(
                           onPressed: () => Navigator.of(context).pop(false),
@@ -155,6 +213,7 @@ class _HomePageState extends State<HomePage> {
                           onPressed: () => Navigator.of(context).pop(true),
                           child: Text(stopped ? "DETENER" : "INICIAR")),
                     ],
+                    scrollable: true,
                   );
                 },
               ).then((value) {
@@ -162,7 +221,12 @@ class _HomePageState extends State<HomePage> {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(
                           (stopped ? "Deteniendo" : "Iniciando") + " flujo")));
-                  startFlow(!stopped);
+                  startFlow(
+                    !stopped,
+                    members: int.parse(membersTextController.text),
+                    membersDelay: int.parse(memberCallDelayTextController.text),
+                    groupsDelay: int.parse(groupCallDelayTextController.text),
+                  );
                 }
               });
             },
@@ -178,16 +242,24 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void startFlow(bool stopped) async {
+  void startFlow(
+    bool stopped, {
+    int members = 10,
+    int membersDelay = 60,
+    int groupsDelay = 120,
+  }) async {
     if (loading) return;
     loading = true;
     if (stopped) {
       await dashboardProvider.updateFlowStatus(status: "PLAYING");
-      await dashboardProvider.callGroup();
+      await dashboardProvider.callGroup(
+        members: members,
+        membersInterval: membersDelay,
+        groupsInterval: groupsDelay,
+      );
       setState(() => loading = false);
     } else {
       await dashboardProvider.updateFlowStatus(status: "STOPPED");
-      await dashboardProvider.callGroup();
       setState(() => loading = false);
     }
   }

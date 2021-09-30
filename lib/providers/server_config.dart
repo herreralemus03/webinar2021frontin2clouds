@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart';
 
-const host = /*"localhost:8080";*/ "webinar2021-aws.herokuapp.com";
+const host = "webinar2021-aws.herokuapp.com";
 //const port = 8080;
 
 Future<Response> doGet(String collection, {Map<String, String>? params}) async {
@@ -17,11 +17,11 @@ Future<Response> doGet(String collection, {Map<String, String>? params}) async {
   }
 }
 
-Future<Response> doGetCustom(String url, String collection,
-    {Map<String, dynamic>? params}) async {
+Future<Response> doPost(String collection,
+    {required Map<String, dynamic> body, Map<String, String>? params}) async {
   try {
-    final uri = Uri.https(url, collection, params);
-    final response = await get(uri, headers: {
+    final uri = Uri.https(host, collection, params);
+    final response = await post(uri, body: json.encode(body), headers: {
       'Content-type': 'application/json',
       'Accept': 'application/json',
     });
@@ -31,11 +31,11 @@ Future<Response> doGetCustom(String url, String collection,
   }
 }
 
-Future<Response> doPost(String collection,
-    {required Map<String, dynamic> body, Map<String, String>? params}) async {
+Future<Response> doGetCustom(String url, String collection,
+    {Map<String, dynamic>? params}) async {
   try {
-    final uri = Uri.https(host, collection, params);
-    final response = await post(uri, body: json.encode(body), headers: {
+    final uri = Uri.https(url, collection, params);
+    final response = await get(uri, headers: {
       'Content-type': 'application/json',
       'Accept': 'application/json',
     });
