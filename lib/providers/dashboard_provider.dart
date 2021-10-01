@@ -61,7 +61,7 @@ class DashboardProvider {
 
   Future<Map<String, dynamic>> callSingle({required String phone}) async {
     final response = await doGet("/api/participantes/call-single",
-        params: {"destination": phone.replaceAll("+", "")});
+        params: {"destination": phone});
     final decodedData = json.decode(utf8.decode(response.bodyBytes));
     print(decodedData);
     return decodedData;
